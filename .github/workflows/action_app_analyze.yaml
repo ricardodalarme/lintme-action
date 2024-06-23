@@ -1,0 +1,118 @@
+name: "Analyze action app"
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/action_app_analyze.yaml"
+      - "action_app/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/action_app_analyze.yaml"
+      - "action_app/**"
+
+permissions:
+  statuses: write
+  checks: write
+
+env:
+  INPUT_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  INPUT_FOLDERS: "bin, lib"
+  INPUT_RELATIVE_PATH: "action_app"
+  INPUT_PULL_REQUEST_COMMENT: true
+  INPUT_ANALYZE_REPORT_TITLE_PATTERN: "Lintme analyze report of $packageName"
+  INPUT_FATAL_WARNINGS: true
+  INPUT_FATAL_PERFORMANCE: true
+  INPUT_FATAL_STYLE: true
+  INPUT_CHECK_UNUSED_FILES: true
+  INPUT_UNUSED_FILES_REPORT_TITLE_PATTERN: "Lintme unused files report of $packageName"
+
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: action_app
+
+    steps:
+      - name: Validate semantic changelog update
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: GetStream/verify-semantic-changelog-update@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+
+      - name: Install Stable Dart
+        uses: dart-lang/setup-dart@v1.4
+        with:
+          sdk: "stable"
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Run dependency validator
+        run: |
+          dart pub global activate dependency_validator
+          dart pub global run dependency_validator:dependency_validator
+
+      - name: Analyze project
+        run: dart analyze --fatal-warnings --fatal-infos .
+
+      - name: Self scan
+        run: dart run bin/main.dart
+
+      - name: Verify formatting
+        run: dart format --set-exit-if-changed .
+
+  testing:
+    needs: analysis
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: action_app
+
+    steps:
+      - name: Install Stable Dart
+        uses: dart-lang/setup-dart@v1.4
+        with:
+          sdk: "stable"
+
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Run tests
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+        if: success()
+        run: |
+          dart test --concurrency=2 --coverage=coverage --reporter=github --file-reporter="json:reports/tests.json"
+          mv reports/tests.json reports/original.json
+          dart pub run coverage:format_coverage -i coverage -o coverage/coverage.lcov --lcov --report-on=lib
+          dart run tool/uncovered_coverage.dart
+          dart test test/fake_test.dart --coverage=coverage
+          dart pub run coverage:format_coverage -i coverage -o coverage/coverage.lcov --lcov --report-on=lib
+          bash <(curl -s https://codecov.io/bash) -f coverage/coverage.lcov -F action_app
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1.6.0
+        if: success() || failure() # run this step even if previous step failed
+        with:
+          name: Tests result
+          path: action_app/reports/original.json
+          reporter: dart-json
+          list-suites: "all"
+          list-tests: "all"
+          max-annotations: 16
+          fail-on-error: true
+          token: ${{ secrets.GITHUB_TOKEN }}

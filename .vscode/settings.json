@@ -1,0 +1,45 @@
+{
+  "cSpell.words": [
+    "amannn",
+    "bools",
+    "canonicalize",
+    "carryforward",
+    "checkrun",
+    "CODECOV",
+    "cyclomatic",
+    "dartcodemetrics",
+    "Dependabot",
+    "ricardodalarme",
+    "interps",
+    "ints",
+    "lcov",
+    "markdownlint",
+    "mocktail",
+    "multiline",
+    "nullsafety",
+    "pubspec",
+    "RELATIVEPATH",
+    "sublist",
+    "todos",
+    "unawaited",
+    "writeln"
+  ],
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "pubspec.yaml": ".packages, pubspec.lock",
+    ".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*"
+  },
+  "[dart]": {
+    "editor.formatOnSave": true,
+    "files.insertFinalNewline": true
+  },
+  "dart.previewFlutterUiGuides": true,
+  "dart.previewFlutterUiGuidesCustomTracking": true,
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  }
+}
