@@ -19,7 +19,7 @@ jobs:
       IMAGE: ricardodalarme/lintme_action
 
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v4.1.7
         with:
           fetch-depth: 1
 
