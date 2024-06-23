@@ -1,0 +1,17 @@
+coverage:
+  precision: 2
+  round: nearest
+  status:
+    project:
+      default: false
+      action_app:
+        flags: [action_app]
+
+flags:
+  action_app:
+    paths:
+      - action_app/
+    carryforward: true
+
+github_checks:
+  annotations: false

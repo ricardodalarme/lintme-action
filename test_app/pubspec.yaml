@@ -1,0 +1,15 @@
+name: test_action_package
+version: 1.0.0
+description: A test package for testing GitHub action.
+publish_to: "none"
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  lintme_action_test_private_repo:
+    git: git@github.com:ricardodalarme/lintme-action-test-private-repo.git
+
+dev_dependencies:
+  lintme: ^1.0.0+1
+  test: ^1.25.7
