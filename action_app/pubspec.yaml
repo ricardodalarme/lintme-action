@@ -18,7 +18,7 @@ dependency_overrides:
   watcher: ^1.1.0
 
 dev_dependencies:
-  coverage: ^1.8.0
+  coverage: ^1.11.0
   lints: ^5.0.0
   mocktail: ^1.0.4
   source_span: ^1.10.0
